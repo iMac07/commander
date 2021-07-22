@@ -30,10 +30,6 @@ public interface XMasDetTrans {
     boolean addDetail();
     boolean delDetail(int fnRow);
     
-//    JSONObject SearchMaster(String fsFieldNm, Object foValue);
-//    JSONObject SearchDetail(int fnRow, String fsFieldNm, Object foValue);
-    JSONObject Search(Enum foType, String fsValue, String fsKey, String fsFilter, int fnMaxRow, boolean fbExact);
-    
     boolean NewTransaction();
     boolean NewTransaction(String fsOrderNox);
     boolean SaveTransaction(boolean fbConfirmed);
