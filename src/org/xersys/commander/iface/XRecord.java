@@ -12,11 +12,11 @@ public interface XRecord {
 
     String getMessage();
    
-    void setMaster(String fsFieldNm, Object foValue);
-    Object getMaster(String fsFieldNm);
-
-    void setMaster(int fnIndex, Object foValue);
-    Object getMaster(int fnIndex);
+//    void setMaster(String fsFieldNm, Object foValue);
+//    Object getMaster(String fsFieldNm);
+//
+//    void setMaster(int fnIndex, Object foValue);
+//    Object getMaster(int fnIndex);
    
     void setListener(Object foListener);
     void setSaveToDisk(boolean fbValue);

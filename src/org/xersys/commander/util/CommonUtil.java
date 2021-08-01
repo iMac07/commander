@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
@@ -22,6 +23,24 @@ public class CommonUtil {
             ex.printStackTrace();
             return null;
         }
+    }
+    
+    public static String nameFormat(String fsLastNme, String fsFrstName, String fsMiddName, String fsSuffixNm){
+        if (fsLastNme.isEmpty() || fsFrstName.isEmpty()){
+            return "";
+        }
+        
+        String lsValue = fsLastNme + ", " + fsFrstName;
+        
+        if (!fsSuffixNm.isEmpty()){
+            lsValue += " " + fsSuffixNm;
+        }
+        
+        if (!fsMiddName.isEmpty()){
+            lsValue += " " + fsMiddName;
+        }
+        
+        return lsValue;
     }
     
     public static String[] splitName(String fsName){
@@ -241,5 +260,33 @@ public class CommonUtil {
         }
         
         return lsSQL;
+    }
+    
+    public static ArrayList<Temp_Transactions> loadTempTransactions(XNautilus foNautilus, String fsSourceCd){
+        String lsSQL = "SELECT * FROM xxxTempTransactions" +
+                        " WHERE cRecdStat = '1'" +
+                            " AND sSourceCd = " + SQLUtil.toSQL(fsSourceCd);
+        
+        ResultSet loRS = foNautilus.executeQuery(lsSQL);
+        
+        Temp_Transactions loTemp;
+        ArrayList<Temp_Transactions> p_oTemp = new ArrayList<>();
+        
+        try {
+            while(loRS.next()){
+                loTemp = new Temp_Transactions();
+                loTemp.setSourceCode(loRS.getString("sSourceCd"));
+                loTemp.setOrderNo(loRS.getString("sOrderNox"));
+                loTemp.setDateCreated(SQLUtil.toDate(loRS.getString("dCreatedx"), SQLUtil.FORMAT_TIMESTAMP));
+                loTemp.setPayload(loRS.getString("sPayloadx"));
+                p_oTemp.add(loTemp);
+            }
+        } catch (SQLException ex) {
+            System.err.println(ex.getMessage());
+        } finally {
+            MiscUtil.close(loRS);
+        }
+        
+        return p_oTemp;
     }
 }

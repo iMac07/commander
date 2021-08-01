@@ -1,27 +1,12 @@
-/******************************************************************************
- *
- * Copyright (c) 1999-2005 AppGate Network Security AB. All Rights Reserved.
- *
- * This file contains Original Code and/or Modifications of Original Code as
- * defined in and that are subject to the MindTerm Public Source License,
- * Version 2.0, (the 'License'). You may not use this file except in compliance
- * with the License.
- *
- * You should have received a copy of the MindTerm Public Source License
- * along with this software; see the file LICENSE.  If not, write to
- * AppGate Network Security AB, Otterhallegatan 2, SE-41118 Goteborg, SWEDEN
- *
- *****************************************************************************/
-
 package org.xersys.commander.util;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-/**
- * Static utility functions for trimming strings and converting byte
- * counts to strings.
- */
 public final class StringUtil {
 
     /**
@@ -56,36 +41,35 @@ public final class StringUtil {
         return str.substring(0, end);
     }
 
-   /**
+    /**
     * Replicates a string.
     * 
     * @param str     The string to replicate.
     * @param ctr     The number of times the string will be replicated.
     * @return        The replicated string value.
     */ 
-   public static String replicate(String str, int ctr){
-      StringBuilder s = new StringBuilder();
-      if(ctr < 1)
-         return "";
+    public static String replicate(String str, int ctr){
+        StringBuilder s = new StringBuilder();
+        if(ctr < 1)
+            return "";
 
-      for(int ln = 1;ln<=ctr;ln++)
-         s.append(str);
+        for(int ln = 1;ln<=ctr;ln++)
+            s.append(str);
 
-      return s.toString();
-   }
+        return s.toString();
+    }
 
-   /**
-    * Checks whether string is convertible to number.
-    * 
-    * @param str     The string value to check.
-    * @return        true if the string value is convertible, otherwise false.
-    */
-   public static boolean isNumeric(String str)
-   {
-     return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
-   }   
+    /**
+     * Checks whether string is convertible to number.
+     * 
+     * @param str     The string value to check.
+     * @return        true if the string value is convertible, otherwise false.
+     */
+    public static boolean isNumeric(String str){
+        return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+    }   
    
-   //mac
+    //mac
     public static String NumberFormat(double fnValue, String fsPattern){
         DecimalFormat myFormatter = new DecimalFormat(fsPattern);
         return myFormatter.format(fnValue);
@@ -99,6 +83,27 @@ public final class StringUtil {
     public static String NumberFormat(Number fnValue, String fsPattern){
         DecimalFormat myFormatter = new DecimalFormat(fsPattern);
         return myFormatter.format(fnValue);
+    }
+    
+    public static boolean isDate(String fsValue, String fsPattern){
+        SimpleDateFormat dateFormat;
+        
+        dateFormat = new SimpleDateFormat(fsPattern);
+        dateFormat.setLenient(false);
+        
+        try {
+            dateFormat.parse(fsValue.trim());
+        } catch (ParseException e) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public static boolean isValidMobile(String fsValue){
+        Pattern p = Pattern.compile("(0|91)?[7-9][0-9]{9}");
+        Matcher m = p.matcher(fsValue);
+        return (m.find() && m.group().equals(fsValue));
     }
 }
 
