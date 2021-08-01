@@ -8,11 +8,13 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.sql.rowset.CachedRowSet;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -763,5 +765,169 @@ public class MiscUtil {
         }
         
         return loArray;
+    }
+    
+    public static JSONArray RS2JSON(CachedRowSet foSource){        
+        JSONArray loArray = new JSONArray();
+        JSONObject loJSON;
+        
+        try {
+            foSource.beforeFirst();
+            while (foSource.next()){
+                loJSON = new JSONObject();
+                
+                for (int lnCtr = 1; lnCtr <= foSource.getMetaData().getColumnCount(); lnCtr++){
+                    switch(foSource.getMetaData().getColumnType(lnCtr)){
+                        case java.sql.Types.TIMESTAMP:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_TIMESTAMP));
+                            else
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                            
+                            break;
+                        case java.sql.Types.DATE:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_SHORT_DATE));
+                            else
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                            
+                            break;
+                        default:
+                            loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                    }
+                }
+                loArray.add(loJSON);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        return loArray;
+    }
+    
+    public static JSONArray RS2JSON(CachedRowSet foSource, String fsFields){   
+        if (fsFields.isEmpty()) return RS2JSON(foSource);
+        
+        JSONArray loArray = new JSONArray();
+        JSONObject loJSON;
+        String lasFields [] = fsFields.split("»");
+        int lnCtr;
+        
+        try {
+            foSource.beforeFirst();
+            while (foSource.next()){
+                loJSON = new JSONObject();
+                
+                for(lnCtr = 0; lnCtr <= lasFields.length - 1; lnCtr++){
+                    switch(foSource.getMetaData().getColumnType(lnCtr)){
+                        case java.sql.Types.TIMESTAMP:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_TIMESTAMP));
+                            else
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                            
+                            break;
+                        case java.sql.Types.DATE:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_SHORT_DATE));
+                            else
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                            
+                            break;
+                        default:
+                            loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                    }
+                }                
+                
+                loArray.add(loJSON);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        return loArray;
+    }
+    
+    public static String rowset2SQL(CachedRowSet rowset, String table, String exclude) throws SQLException{
+        String sql = "";
+        int col2 = 0;
+        java.sql.ResultSetMetaData cols = rowset.getMetaData();
+        
+        exclude = exclude.toLowerCase();
+        
+        for(int n=1; n<= cols.getColumnCount(); n++){
+            if(cols.getColumnName(n).equalsIgnoreCase("dModified")){
+                col2 = n;
+            }
+            else if(!exclude.contains(cols.getColumnName(n).toLowerCase())){
+                sql += ", " + cols.getColumnName(n) + " = " + SQLUtil.toSQL(rowset.getObject(n));
+            }
+        }
+
+        if(col2 > 0){
+            sql += ", dModified = " + SQLUtil.toSQL(Calendar.getInstance().getTime());
+        }
+        
+        sql = "INSERT INTO " + table + " SET " + sql.substring(2);
+        
+        return sql;
+    }
+    
+    public static String rowset2SQL(CachedRowSet rowset, String table, String exclude, String filter) throws SQLException{
+        String sql = "";
+        int col2 = 0;
+        java.sql.ResultSetMetaData cols = rowset.getMetaData();
+
+        exclude = exclude.toLowerCase();
+        
+        for(int n=1; n<= cols.getColumnCount(); n++){
+            if(cols.getColumnName(n).equalsIgnoreCase("dModified")){
+                col2 = n;
+            }
+            else if(!exclude.contains(cols.getColumnName(n).toLowerCase())){
+                if(rowset.columnUpdated(n)){
+                    sql += ", " + cols.getColumnName(n) + " = " + SQLUtil.toSQL(rowset.getObject(n));
+                }
+            }
+        }
+    
+        if(!sql.isEmpty()){
+            if(col2 > 0){
+                sql += ", dModified = " + SQLUtil.toSQL(Calendar.getInstance().getTime());
+            }
+            
+            sql = "UPDATE " + table + " SET " + sql.substring(2) + " WHERE " + filter;
+        }
+        
+        return sql;
+    }
+    
+    public static void initRowSet(CachedRowSet rowset) throws SQLException{
+        java.sql.ResultSetMetaData cols = rowset.getMetaData();
+        for(int n=1;n<=cols.getColumnCount();n++){
+            switch(cols.getColumnType(n)){
+                case java.sql.Types.BIGINT:
+                case java.sql.Types.INTEGER:
+                case java.sql.Types.SMALLINT:
+                case java.sql.Types.TINYINT:
+                    rowset.updateObject(n, 0);
+                    break;
+                case java.sql.Types.DECIMAL:
+                case java.sql.Types.DOUBLE:
+                case java.sql.Types.FLOAT:
+                case java.sql.Types.NUMERIC:
+                case java.sql.Types.REAL:
+                    rowset.updateObject(n, 0.00);
+                    break;
+                case java.sql.Types.CHAR:
+                case java.sql.Types.NCHAR:
+                case java.sql.Types.NVARCHAR:
+                case java.sql.Types.VARCHAR:
+                    rowset.updateObject(n, "");
+                    break;
+                default:
+                    rowset.updateObject(n, null);
+            }
+        }
     }
 }
