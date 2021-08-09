@@ -767,6 +767,44 @@ public class MiscUtil {
         return loArray;
     }
     
+    public static JSONArray RS2JSONi(CachedRowSet foSource){        
+        JSONArray loArray = new JSONArray();
+        JSONObject loJSON;
+        
+        try {
+            foSource.beforeFirst();
+            while (foSource.next()){
+                loJSON = new JSONObject();
+                
+                for (int lnCtr = 1; lnCtr <= foSource.getMetaData().getColumnCount(); lnCtr++){
+                    switch(foSource.getMetaData().getColumnType(lnCtr)){
+                        case java.sql.Types.TIMESTAMP:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(lnCtr, SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_TIMESTAMP));
+                            else
+                                loJSON.put(lnCtr, foSource.getObject(lnCtr));
+                            
+                            break;
+                        case java.sql.Types.DATE:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(lnCtr, SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_SHORT_DATE));
+                            else
+                                loJSON.put(lnCtr, foSource.getObject(lnCtr));
+                            
+                            break;
+                        default:
+                            loJSON.put(lnCtr, foSource.getObject(lnCtr));
+                    }
+                }
+                loArray.add(loJSON);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        return loArray;
+    }
+    
     public static JSONArray RS2JSON(CachedRowSet foSource){        
         JSONArray loArray = new JSONArray();
         JSONObject loJSON;
