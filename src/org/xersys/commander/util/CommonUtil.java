@@ -222,6 +222,19 @@ public class CommonUtil {
         return foNautilus.executeUpdate(lsSQL) != 0;
     }
     
+    public static boolean saveTempOrder(XNautilus foNautilus, String fsSourceCd, String fsOrderNox, String fsPayloadx, String fsRecdStat, String fsTransNox){
+        if (foNautilus == null) return false;
+        
+        String lsSQL = "UPDATE xxxTempTransactions SET" +
+                            "  sPayloadx = '" + fsPayloadx + "'" +
+                            ", cRecdStat = " + SQLUtil.toSQL(fsRecdStat) +
+                            ", sTransNox = " + SQLUtil.toSQL(fsTransNox) +
+                        " WHERE sSourceCd = " + SQLUtil.toSQL(fsSourceCd) +
+                            " AND sOrderNox = " + SQLUtil.toSQL(fsOrderNox);
+        
+        return foNautilus.executeUpdate(lsSQL) != 0;
+    }
+    
     public static ResultSet getTempOrder(XNautilus foNautilus, String fsSourceCd, String fsOrderNox){
         if (foNautilus == null) return null;
         
