@@ -8,10 +8,13 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.xersys.commander.iface.XConnection;
 import org.xersys.commander.iface.XCrypt;
 import org.xersys.commander.iface.XNautilus;
 import org.xersys.commander.util.MiscUtil;
+import org.xersys.commander.util.SQLUtil;
 
 public class Nautilus implements XNautilus{
     private final String SIGNATURE = "07071991";
@@ -95,17 +98,34 @@ public class Nautilus implements XNautilus{
 
     @Override
     public Object getBranchConfig(String fsValue) {
-        return null;
-    }
-
-    @Override
-    public Object getSysConfig(String fsValue) {
         switch (fsValue){
             case "sBranchCd":
                 return "X001";
             default:
                 return null;
         }
+    }
+
+    @Override
+    public Object getSysConfig(String fsValue) {
+        Object loValue = null;
+        
+        if (poConn == null) return loValue;
+        if (fsValue.isEmpty()) return loValue;
+        
+        String lsSQL = "SELECT sConfigVl FROM xxxSysConfig WHERE sConfigCd = " + SQLUtil.toSQL(fsValue);
+        
+        ResultSet loRS = poConn.executeQuery(lsSQL);
+        
+        try {
+            if (loRS.next()) loValue = loRS.getObject("sConfigVl");
+            
+            MiscUtil.close(loRS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        
+        return loValue;
     }
 
     @Override

@@ -1,12 +1,12 @@
 package org.xersys.commander.iface;
 
 public interface XPayments {
-    boolean NewRecord();
-    boolean SaveRecord();
-    boolean UpdateRecord();
-    boolean OpenRecord();
-    boolean CloseRecord();
-    boolean PrintRecord();
+    boolean NewTransaction();
+    boolean SaveTransaction();
+    boolean UpdateTransaction();
+    boolean OpenTransaction(String fsTransNox);
+    boolean CloseTransaction();
+    boolean PrintTransaction();
     
     void setSourceCd(String fsValue);
     void setSourceNo(String fsValue);
