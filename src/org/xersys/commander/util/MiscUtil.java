@@ -730,8 +730,30 @@ public class MiscUtil {
             while (foSource.next()){
                 loJSON = new JSONObject();
                 
+//                for (int lnCtr = 1; lnCtr <= foSource.getMetaData().getColumnCount(); lnCtr++){
+//                    loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+//
+//                }
+//                loArray.add(loJSON);
                 for (int lnCtr = 1; lnCtr <= foSource.getMetaData().getColumnCount(); lnCtr++){
-                    loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                    switch(foSource.getMetaData().getColumnType(lnCtr)){
+                        case java.sql.Types.TIMESTAMP:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_TIMESTAMP));
+                            else
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                            
+                            break;
+                        case java.sql.Types.DATE:
+                            if (foSource.getObject(lnCtr) != null)
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), SQLUtil.dateFormat(foSource.getObject(lnCtr), SQLUtil.FORMAT_SHORT_DATE));
+                            else
+                                loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                            
+                            break;
+                        default:
+                            loJSON.put(foSource.getMetaData().getColumnLabel(lnCtr), foSource.getObject(lnCtr));
+                    }
                 }
                 loArray.add(loJSON);
             }
