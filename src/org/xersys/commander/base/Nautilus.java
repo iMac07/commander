@@ -8,8 +8,6 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.xersys.commander.iface.XConnection;
 import org.xersys.commander.iface.XCrypt;
 import org.xersys.commander.iface.XNautilus;

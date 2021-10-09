@@ -1,5 +1,7 @@
 package org.xersys.commander.iface;
 
+import org.json.simple.JSONObject;
+
 public interface XPayments {
     boolean NewTransaction();
     boolean SaveTransaction();
@@ -26,4 +28,7 @@ public interface XPayments {
     void setListener(LRecordMas foValue);
     
     String getMessage();
+    
+    JSONObject searchClient(String fsKey, Object foValue, boolean fbExact);
+    Object getSearchClient();
 }
