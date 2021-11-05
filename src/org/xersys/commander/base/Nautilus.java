@@ -8,6 +8,9 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import javax.sql.rowset.CachedRowSet;
+import javax.sql.rowset.RowSetFactory;
+import javax.sql.rowset.RowSetProvider;
 import org.xersys.commander.iface.XConnection;
 import org.xersys.commander.iface.XCrypt;
 import org.xersys.commander.iface.XNautilus;
@@ -17,15 +20,18 @@ import org.xersys.commander.util.SQLUtil;
 public class Nautilus implements XNautilus{
     private final String SIGNATURE = "07071991";
     
-    XConnection poConn;
-    XCrypt poCrypt;
+    private XConnection poConn;
+    private XCrypt poCrypt;
     
-    Date pdSysDate;    
+    private Date pdSysDate;    
     
-    String psUserIDxx;
-    String psMessagex;
+    private String psUserIDxx;
+    private String psMessagex;
     
-    boolean pbLoaded;
+    private boolean pbLoaded;
+    
+    private CachedRowSet poClient;
+    private CachedRowSet poUser;
     
     public Nautilus(){
         pbLoaded = false;
@@ -86,7 +92,13 @@ public class Nautilus implements XNautilus{
     
     @Override
     public Object getUserInfo(String fsValue) {
-        return null;
+        try {
+            poUser.first();
+            return poUser.getObject(fsValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -96,11 +108,12 @@ public class Nautilus implements XNautilus{
 
     @Override
     public Object getBranchConfig(String fsValue) {
-        switch (fsValue){
-            case "sBranchCd":
-                return "X001";
-            default:
-                return null;
+        try {
+            poClient.first();
+            return poClient.getObject(fsValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
     }
 
@@ -242,8 +255,8 @@ public class Nautilus implements XNautilus{
             System.out.println("Connection was successfully initialized.");
         }
     
-        //TODO:
-        //  load user information here
+        if (!loadClient()) return false;
+        if (!loadUser()) return false;
         
         pbLoaded = true;
         return true;
@@ -354,5 +367,92 @@ public class Nautilus implements XNautilus{
     //added methods
     private void setMessage(String fsValue) {
         psMessagex = fsValue;
+    }
+    
+    private boolean loadUser(){
+        try {
+            RowSetFactory factory = RowSetProvider.newFactory();
+
+            ResultSet loRS = poConn.executeQuery(MiscUtil.addCondition(getSQ_User(), "a.sUserIDxx = " + SQLUtil.toSQL(psUserIDxx)));
+
+            poUser = factory.createCachedRowSet();
+            poUser.populate(loRS);
+            MiscUtil.close(loRS);
+
+            if (!poUser.next()){
+                setMessage("Unable to load user information.");
+                return false;
+            }
+            
+            return true;
+        } catch (SQLException e) {
+            setMessage(e.getMessage());
+        }
+        
+        return false;
+    }
+    
+    private boolean loadClient(){
+        try {
+            RowSetFactory factory = RowSetProvider.newFactory();
+        
+            String lsSQL = poConn.getProperty().getClientID();
+            lsSQL = "sClientID = " + SQLUtil.toSQL(lsSQL);
+
+            ResultSet loRS = poConn.executeQuery(MiscUtil.addCondition(getSQ_Client(), lsSQL));
+
+            poClient = factory.createCachedRowSet();
+            poClient.populate(loRS);
+            MiscUtil.close(loRS);
+            
+            if (!poClient.next()){
+                setMessage("Unable to load system client information.");
+                return false;
+            }
+
+            return true;
+        } catch (SQLException e) {
+            setMessage(e.getMessage());
+        }
+        
+        return false;
+    }
+    
+    private String getSQ_User(){
+        return "SELECT" +
+                    "  a.sUserIDxx" +	
+                    ", a.sBranchCd" +
+                    ", a.sProdctID" +	
+                    ", a.sUsername" +	
+                    ", a.sPassword" +	
+                    ", a.sClientID" +	
+                    ", a.nUserLevl" +	
+                    ", a.cGloblAct" +
+                    ", a.dLastLogx" +
+                    ", a.cUserStat" +
+                    ", '' xClientNm" +
+                " FROM xxxSysUser a";
+    }
+    
+    private String getSQ_Client(){
+        return "SELECT" +
+                    "  a.sClientID" +
+                    ", a.sBranchCd" +
+                    ", a.sCompnyNm" +
+                    ", a.sAddressx" +
+                    ", a.sTownIDxx" +
+                    ", a.sTINIDxxx" +
+                    ", a.sTelNoxxx" +
+                    ", a.sFaxNoxxx" +
+                    ", a.sContactx" +
+                    ", a.sManagrID" +
+                    ", a.cMainOffc" +
+                    ", a.cWarehous" +
+                    ", a.dCutOffxx" +
+                    ", a.cRecdStat" +
+                    ", IFNULL(b.sTownName, '') xTownName" +
+                    ", '' xManagerID" +
+                " FROM xxxSysClient a" +
+                    " LEFT JOIN TownCity b ON a.sTownIDxx = b.sTownIDxx";
     }
 }

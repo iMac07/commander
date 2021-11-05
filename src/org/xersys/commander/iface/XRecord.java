@@ -16,8 +16,4 @@ public interface XRecord {
 
     int getEditMode();
     String getMessage();
-   
-    
-    
-    
 }
