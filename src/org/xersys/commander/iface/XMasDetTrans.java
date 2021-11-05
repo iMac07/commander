@@ -4,8 +4,6 @@
 
 package org.xersys.commander.iface;
 
-import org.json.simple.JSONObject;
-
 public interface XMasDetTrans {
     void setListener(LMasDetTrans foValue);
     void setSaveToDisk(boolean fbValue);
