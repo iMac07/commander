@@ -9,8 +9,11 @@ public interface XRecord {
     boolean DeactivateRecord(String fsTransNox);
     boolean ActivateRecord(String fsTransNox);
     
-    Object getMaster(String fsFieldNm);
-    void setMaster(String fsFieldNm, Object foValue);
+    Object getMaster(String fsIndex);
+    Object getMaster(int fnIndex);
+    
+    void setMaster(String fsIndex, Object foValue);
+    void setMaster(int fnIndex, Object foValue);
     
     void setListener(Object foListener);
 

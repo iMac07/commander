@@ -7,6 +7,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -989,5 +990,44 @@ public class MiscUtil {
                     rowset.updateObject(n, null);
             }
         }
+    }
+    
+    public static int getColumnIndex(CachedRowSet loRS, String fsValue) throws SQLException{
+        int lnIndex = 0;
+        int lnRow = loRS.getMetaData().getColumnCount();
+        
+        for (int lnCtr = 1; lnCtr <= lnRow; lnCtr++){
+            if (fsValue.equals(loRS.getMetaData().getColumnLabel(lnCtr))){
+                lnIndex = lnCtr;
+                break;
+            }
+        }
+        
+        return lnIndex;
+    }
+    
+    public static void getSchema(CachedRowSet loRS) throws SQLException{        
+        int lnRow = loRS.getMetaData().getColumnCount();
+        
+        System.out.println("----------------------------------------");
+        System.out.println("MAIN TABLE: " + loRS.getTableName());
+        System.out.println("----------------------------------------");
+        System.out.println("Total number of columns: " + lnRow);
+        System.out.println("----------------------------------------");
+        
+        for (int lnCtr = 1; lnCtr <= lnRow; lnCtr++){
+            System.out.println("Column index: " + (lnCtr) + " --> Name : " + loRS.getMetaData().getColumnName(lnCtr));
+            System.out.println("Column index: " + (lnCtr) + " --> Label: " + loRS.getMetaData().getColumnLabel(lnCtr));
+            System.out.println("Column index: " + (lnCtr) + " --> Type : " + loRS.getMetaData().getColumnType(lnCtr));
+            
+            if (loRS.getMetaData().getColumnType(lnCtr) == Types.CHAR ||
+                loRS.getMetaData().getColumnType(lnCtr) == Types.VARCHAR){
+                
+                System.out.println("Column index: " + (lnCtr) + " --> Size: " + loRS.getMetaData().getColumnDisplaySize(lnCtr));
+            }
+        }
+        System.out.println("----------------------------------------");
+        System.out.println("END: MAIN TABLE");
+        System.out.println("----------------------------------------");
     }
 }
