@@ -8,4 +8,5 @@ public interface LMasDetTrans {
     void MasterRetreive(String fsFieldNm, Object foValue);
     void MasterRetreive(int fnIndex, Object foValue);
     void DetailRetreive(int fnRow, String fsFieldNm, Object foValue);
+    void DetailRetreive(int fnRow, int fnIndex, Object foValue);
 }
