@@ -52,6 +52,7 @@ public class SQLUtil
     public static String FORMAT_TIMESTAMP  = "yyyy-MM-dd HH:mm:ss";
     public static String FORMAT_SHORT_DATEX = "yyyyMMdd";
     public static String FORMAT_SHORT_YEAR = "yy";
+    public static String FORMAT_TIME = "hh:mm:ss";
     
   /**
    * Escapes single quotes and backslashes in <code>string</code>. This is done by replacing
@@ -225,29 +226,34 @@ public class SQLUtil
       return ret;
     }
 
-   /**
+    /**
     * Convert a string date into date value.
     * 
     * @param date       the string date to be converted to date.
     * @param format     the format/form of the string date.
     * @return           the date equivalent of the string date.
     */
-   public static Date toDate(String date, String format){
-      Date loDate = null;
-      try{
-         //Be sure to follow the format specified
-         SimpleDateFormat sf = new SimpleDateFormat(format);
-         loDate = sf.parse(date);
-         sf = null;
-      }
-      catch(ParseException ex){
-         ex.printStackTrace();
-         //Nothing to do;
-      }
+    public static Date toDate(String date, String format){
+        Date loDate = null;
+        try{
+           //Be sure to follow the format specified
+           SimpleDateFormat sf = new SimpleDateFormat(format);
+           loDate = sf.parse(date);
+           sf = null;
+        }
+        catch(ParseException ex){
+           ex.printStackTrace();
+           //Nothing to do;
+        }
 
-      return loDate;
-   }
-
+        return loDate;
+    }
+    
+    public static java.sql.Date toSQLDate(java.util.Date uDate) {
+        java.sql.Date sDate = new java.sql.Date(uDate.getTime());
+        return sDate;
+    }
+    
    /**
     * Format a string value.
     * 
@@ -313,15 +319,15 @@ public class SQLUtil
       return ret;
    }
     
-   public static String toStrValue(String value, String format){
-      try {
-         MaskFormatter mf = new MaskFormatter(format);
-         mf.setValueContainsLiteralCharacters(false);
-         return (String) mf.stringToValue(value);
-      } catch (ParseException ex) {
-         return "";
-      }
-   }
+    public static String toStrValue(String value, String format){
+        try {
+            MaskFormatter mf = new MaskFormatter(format);
+            mf.setValueContainsLiteralCharacters(false);
+            return (String) mf.stringToValue(value);
+        } catch (ParseException ex) {
+            return "";
+        }
+    }
    
    /**
     * Compare the value of two object.

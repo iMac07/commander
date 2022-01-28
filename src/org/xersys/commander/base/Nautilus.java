@@ -337,10 +337,44 @@ public class Nautilus implements XNautilus{
             return lnRow;
         }
         
-        //TODO:
-        //  add replication management here
+        //execute statement
+        lnRow = executeUpdate(fsValue);
         
-        return executeUpdate(fsValue);
+        //execute statement to replicaton
+        if (!fsTableNme.isEmpty()){
+            Timestamp tme = getServerDate();
+
+            StringBuilder lsSQL = new StringBuilder();
+            StringBuilder lsNme = new StringBuilder();
+
+            //set fieldnames
+            lsNme.append("(sTransNox");
+            lsNme.append(", sBranchCd");
+            lsNme.append(", sStatemnt");
+            lsNme.append(", sTableNme");
+            lsNme.append(", sDestinat");
+            lsNme.append(", sModified");
+            lsNme.append(", dEntryDte");
+            lsNme.append(", dModified)");
+
+            //set values
+            lsSQL.append("(" + SQLUtil.toSQL(MiscUtil.getNextCode("xxxReplicationLog", "sTransNox", true, poConn.getConnection(), fsBranchCd)));
+            lsSQL.append(", " + SQLUtil.toSQL(fsBranchCd));
+            lsSQL.append(", " + SQLUtil.toSQL(fsValue));
+            lsSQL.append(", " + SQLUtil.toSQL(fsTableNme));
+            lsSQL.append(", " + SQLUtil.toSQL(fsDestinat));
+            lsSQL.append(", " + SQLUtil.toSQL((psUserIDxx == null ? "" : psUserIDxx)));
+            lsSQL.append(", " + SQLUtil.toSQL(tme));
+            lsSQL.append(", " + SQLUtil.toSQL(tme) + ")");
+            
+            executeUpdate("INSERT INTO xxxReplicationLog" + lsNme.toString() + " VALUES" + lsSQL.toString());
+            
+            tme = null;
+            lsSQL = null;
+            lsNme = null;
+        }
+        
+        return lnRow;
     }
     
     @Override
