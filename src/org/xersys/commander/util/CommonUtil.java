@@ -15,6 +15,7 @@ import java.util.logging.Logger;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.lang3.StringUtils;
+import org.xersys.commander.contants.RecordStatus;
 import org.xersys.commander.iface.XNautilus;
 
 public class CommonUtil {
@@ -364,11 +365,18 @@ public class CommonUtil {
     public static boolean saveTempOrder(XNautilus foNautilus, String fsSourceCd, String fsOrderNox, String fsPayloadx, String fsRecdStat){
         if (foNautilus == null) return false;
         
-        String lsSQL = "UPDATE xxxTempTransactions SET" +
-                            "  sPayloadx = '" + fsPayloadx + "'" +
-                            ", cRecdStat = " + SQLUtil.toSQL(fsRecdStat) +
-                        " WHERE sSourceCd = " + SQLUtil.toSQL(fsSourceCd) +
-                            " AND sOrderNox = " + SQLUtil.toSQL(fsOrderNox);
+        String lsSQL;
+        if (!fsRecdStat.equals(RecordStatus.UNKNOWN)){
+            lsSQL = "UPDATE xxxTempTransactions SET" +
+                        "  sPayloadx = '" + fsPayloadx + "'" +
+                        ", cRecdStat = " + SQLUtil.toSQL(fsRecdStat) +
+                    " WHERE sSourceCd = " + SQLUtil.toSQL(fsSourceCd) +
+                        " AND sOrderNox = " + SQLUtil.toSQL(fsOrderNox);
+        } else {
+            lsSQL = "DELETE FROM xxxTempTransactions" +
+                    " WHERE sSourceCd = " + SQLUtil.toSQL(fsSourceCd) +
+                        " AND sOrderNox = " + SQLUtil.toSQL(fsOrderNox);
+        }
         
         return foNautilus.executeUpdate(lsSQL) != 0;
     }
