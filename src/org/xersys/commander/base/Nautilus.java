@@ -338,6 +338,7 @@ public class Nautilus implements XNautilus{
         }
         
         //execute statement
+        System.out.println(fsValue);
         lnRow = executeUpdate(fsValue);
         
         //execute statement to replicaton
@@ -464,8 +465,9 @@ public class Nautilus implements XNautilus{
                     ", a.cGloblAct" +
                     ", a.dLastLogx" +
                     ", a.cUserStat" +
-                    ", '' xClientNm" +
-                " FROM xxxSysUser a";
+                    ", IFNULL(b.sClientNm, 'UNKNOWN USER') xClientNm" +
+                " FROM xxxSysUser a" +
+                    " LEFT JOIN Client_Master b ON a.sClientiD = b.sClientID";
     }
     
     private String getSQ_Client(){
