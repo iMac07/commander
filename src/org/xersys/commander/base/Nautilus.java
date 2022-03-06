@@ -408,7 +408,8 @@ public class Nautilus implements XNautilus{
         try {
             RowSetFactory factory = RowSetProvider.newFactory();
 
-            ResultSet loRS = poConn.executeQuery(MiscUtil.addCondition(getSQ_User(), "a.sUserIDxx = " + SQLUtil.toSQL(psUserIDxx)));
+            String lsSQL = MiscUtil.addCondition(getSQ_User(), "a.sUserIDxx = " + SQLUtil.toSQL(psUserIDxx));
+            ResultSet loRS = poConn.executeQuery(lsSQL);
 
             poUser = factory.createCachedRowSet();
             poUser.populate(loRS);
@@ -461,13 +462,17 @@ public class Nautilus implements XNautilus{
                     ", a.sUsername" +	
                     ", a.sPassword" +	
                     ", a.sClientID" +	
-                    ", a.nUserLevl" +	
+                    ", a.nUserLevl" +
+                    ", a.nObjAcces" +
                     ", a.cGloblAct" +
                     ", a.dLastLogx" +
                     ", a.cUserStat" +
                     ", IFNULL(b.sClientNm, 'UNKNOWN USER') xClientNm" +
                 " FROM xxxSysUser a" +
-                    " LEFT JOIN Client_Master b ON a.sClientiD = b.sClientID";
+                    ", Client_Master b" +
+                " WHERE a.sClientiD = b.sClientID" +
+                    " AND b.cEmployee = '1'";
+                     
     }
     
     private String getSQ_Client(){
