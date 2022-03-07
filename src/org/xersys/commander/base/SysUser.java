@@ -133,8 +133,47 @@ public class SysUser{
         p_nEditMode = EditMode.UPDATE;
         return true;
     }
+    
+    public boolean OpenRecord(String fsUserName, String fsPassword) {
+        System.out.println(this.getClass().getSimpleName() + ".OpenRecord(String fsUserName, String fsPassword)");
+        p_sMessage = "";
 
-    public boolean OpenRecord(String fsTransNox) {
+        try {
+            String lsSQL;
+            ResultSet loRS;
+
+            RowSetFactory factory = RowSetProvider.newFactory();
+            
+            String lsUserName = p_oNautilus.Encrypt(fsUserName);
+            String lsPassword = p_oNautilus.Encrypt(fsPassword);
+
+            //open master record
+            lsSQL = MiscUtil.addCondition(getSQ_Master(), 
+                        "a.sUsername = " + SQLUtil.toSQL(lsUserName) +
+                            " AND a.sPassword = " + SQLUtil.toSQL(lsPassword));
+            
+            loRS = p_oNautilus.executeQuery(lsSQL);
+
+            if (MiscUtil.RecordCount(loRS) <= 0){
+                p_sMessage = "No account found for the given criteria.";
+
+                p_oMaster = null;
+                return false;
+            }
+
+            p_oMaster = factory.createCachedRowSet();
+            p_oMaster.populate(loRS);
+            MiscUtil.close(loRS);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            p_sMessage = ex.getMessage();
+        }
+
+        p_nEditMode  = EditMode.READY;
+        return true;
+    }
+
+    public boolean OpenRecord(String fsUserIDxx) {
         System.out.println(this.getClass().getSimpleName() + ".OpenRecord(String fsTransNox)");
         p_sMessage = "";
 
@@ -145,7 +184,7 @@ public class SysUser{
             RowSetFactory factory = RowSetProvider.newFactory();
 
             //open master record
-            lsSQL = MiscUtil.addCondition(getSQ_Master(), "a.sUserIDxx = " + SQLUtil.toSQL(fsTransNox));
+            lsSQL = MiscUtil.addCondition(getSQ_Master(), "a.sUserIDxx = " + SQLUtil.toSQL(fsUserIDxx));
             loRS = p_oNautilus.executeQuery(lsSQL);
 
             if (MiscUtil.RecordCount(loRS) <= 0){
@@ -420,9 +459,12 @@ public class SysUser{
                     ", a.cGloblAct" +
                     ", a.dLastLogx" +
                     ", a.cUserStat" +
-                    ", b.sClientNm" +
+                    ", IFNULL(b.sClientNm, 'UNKNOWN USER') sClientNm" +
                     ", a.nObjAcces" +
-                " FROM " + MASTER_TABLE + " a" +
-                    " LEFT JOIN Client_Master b ON a.sClientID = b.sClientID";
+                " FROM xxxSysUser a" +
+                    ", Client_Master b" +
+                " WHERE a.sClientiD = b.sClientID" +
+                    " AND b.cEmployee = '1'" +
+                " ORDER BY a.nUserLevl DESC";
     }
 }
