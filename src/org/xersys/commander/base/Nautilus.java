@@ -256,7 +256,7 @@ public class Nautilus implements XNautilus{
         }
     
         if (!loadClient()) return false;
-        if (!loadUser()) return false;
+        if (!loadUser(fsProdctID)) return false;
         
         pbLoaded = true;
         return true;
@@ -404,7 +404,7 @@ public class Nautilus implements XNautilus{
         psMessagex = fsValue;
     }
     
-    private boolean loadUser(){
+    private boolean loadUser(String fsProdctID){
         try {
             RowSetFactory factory = RowSetProvider.newFactory();
 
@@ -418,6 +418,25 @@ public class Nautilus implements XNautilus{
             if (!poUser.next()){
                 setMessage("Unable to load user information.");
                 return false;
+            }
+            
+            switch (poUser.getString("cUserStat")){
+                case "0":
+                    setMessage("Account status is LOCKED. Unable to login.");
+                    return false;
+                case "2":
+                    setMessage("Account status is SUSPENDED. Unable to login.");
+                    return false;
+                case "3":
+                    setMessage("Account status is INACTIVE. Unable to login.");
+                    return false;
+            }
+            
+            if (!fsProdctID.equalsIgnoreCase(poUser.getString("sProdctID"))){
+                if (!poUser.getString("cGloblAct").equals("1")){
+                    setMessage("Account is NOT A MEMBER of this application. Unable to login.");
+                    return false;
+                }
             }
             
             return true;
