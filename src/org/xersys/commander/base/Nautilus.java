@@ -11,9 +11,11 @@ import java.sql.Timestamp;
 import javax.sql.rowset.CachedRowSet;
 import javax.sql.rowset.RowSetFactory;
 import javax.sql.rowset.RowSetProvider;
+import org.xersys.commander.iface.LApproval;
 import org.xersys.commander.iface.XConnection;
 import org.xersys.commander.iface.XCrypt;
 import org.xersys.commander.iface.XNautilus;
+import org.xersys.commander.util.CommonUtil;
 import org.xersys.commander.util.MiscUtil;
 import org.xersys.commander.util.SQLUtil;
 
@@ -30,8 +32,9 @@ public class Nautilus implements XNautilus{
     
     private boolean pbLoaded;
     
-    private CachedRowSet poClient;
     private CachedRowSet poUser;
+    private CachedRowSet poProduct;
+    private CachedRowSet poClient;
     
     public Nautilus(){
         pbLoaded = false;
@@ -103,7 +106,13 @@ public class Nautilus implements XNautilus{
 
     @Override
     public Object getAppConfig(String fsValue) {
-        return null;
+        try {
+            poProduct.first();
+            return poProduct.getObject(fsValue);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     @Override
@@ -208,27 +217,16 @@ public class Nautilus implements XNautilus{
             return false;
         }
         
-        if (!psUserIDxx.isEmpty()){
-            return loginUser(fsProdctID, psUserIDxx);
-        } else {
-            if (!poConn.getProperty().getProductID().equals(fsProdctID)){
-                poConn.getProperty().setProductID(fsProdctID);
-
-                if (poConn.doConnect() == null){
-                    System.err.println(poConn.getMessage());
-                    return false;
-                }
-
-                System.out.println("Connection was successfully initialized.");
-            }
-        }
+        if (!loginUser(fsProdctID)) return false;
+        if (!loadClient()) return false;
+        if (!loadProduct(fsProdctID)) return false;
         
         pbLoaded = true;
         return true;
     }
 
     @Override
-    public boolean loginUser(String fsProdctID, String fsUserIDxx) {
+    public boolean loginUser(String fsProdctID) {
         System.out.println("Initializing application driver.");
         pbLoaded = false;
         
@@ -239,7 +237,7 @@ public class Nautilus implements XNautilus{
             return false;
         }
         
-        if (fsUserIDxx.isEmpty()){
+        if (psUserIDxx.isEmpty()){
             setMessage("User ID is not set.");
             return false;
         }
@@ -255,7 +253,6 @@ public class Nautilus implements XNautilus{
             System.out.println("Connection was successfully initialized.");
         }
     
-        if (!loadClient()) return false;
         if (!loadUser(fsProdctID)) return false;
         
         pbLoaded = true;
@@ -395,6 +392,100 @@ public class Nautilus implements XNautilus{
     }
     
     @Override
+    public boolean isUserAuthorized(LApproval foListener, int fnUserLevl) {
+        System.setProperty("sUserIDxx", "");
+        System.setProperty("sUsername", "");
+        System.setProperty("sPassword", "");
+        System.setProperty("sMessagex", "");
+        
+        if ((fnUserLevl & (int) getUserInfo("nUserLevl")) == 0){
+            
+            if (foListener == null) {
+                System.setProperty("sMessagex", "Approval listener is not set.");
+                return false;
+            }
+            
+            foListener.Request(); //request for approval
+        
+            String lsUsername = System.getProperty("sUserName");
+            String lsPassword = System.getProperty("sPassword");
+            
+            System.setProperty("sUserName", "");
+            System.setProperty("sPassword", "");
+            
+            SysUser loUser = new SysUser(this);
+            
+            if (!loUser.OpenRecord(lsUsername, lsPassword)){
+                System.setProperty("sMessagex", loUser.getMessage());
+                return false;
+            }
+                
+            if ("".equals((String) loUser.getMaster("sUserIDxx"))){
+                System.setProperty("sMessagex", "No user was detected.");
+                return false;
+            }
+            
+            if ((fnUserLevl & (int) loUser.getMaster("nUserLevl")) == 0){
+                System.setProperty("sMessagex", "Account was not authorized for this transaction.");
+                return false;
+            }
+            
+            System.setProperty("sUserIDxx", (String) loUser.getMaster("sUserIDxx"));
+        } else 
+            System.setProperty("sUserIDxx", (String) getUserInfo("sUserIDxx"));
+        
+        return true;
+    }
+    
+    @Override
+    public boolean isUserAuthorized(LApproval foListener, int fnUserLevl, int fnObjAcces) {
+        System.setProperty("sUserIDxx", "");
+        System.setProperty("sUsername", "");
+        System.setProperty("sPassword", "");
+        System.setProperty("sMessagex", "");
+        
+        if ((fnUserLevl & (int) getUserInfo("nUserLevl")) == 0 ||
+            (fnObjAcces & (int) getUserInfo("nObjAcces")) == 0){
+            
+            if (foListener == null) {
+                System.setProperty("sMessagex", "Approval listener is not set.");
+                return false;
+            }
+            
+            foListener.Request(); //request for approval
+        
+            String lsUsername = System.getProperty("sUserName");
+            String lsPassword = System.getProperty("sPassword");
+            
+            System.setProperty("sUserName", "");
+            System.setProperty("sPassword", "");
+            
+            SysUser loUser = new SysUser(this);
+            
+            if (!loUser.OpenRecord(lsUsername, lsPassword)){
+                System.setProperty("sMessagex", loUser.getMessage());
+                return false;
+            }
+                
+            if ("".equals((String) loUser.getMaster("sUserIDxx"))){
+                System.setProperty("sMessagex", "No user was detected.");
+                return false;
+            }
+            
+            if ((fnUserLevl & (int) loUser.getMaster("nUserLevl")) == 0||
+                (fnObjAcces & (int) loUser.getMaster("nObjAcces")) == 0){
+                System.setProperty("sMessagex", "Account was not authorized for this transaction.");
+                return false;
+            }
+            
+            System.setProperty("sUserIDxx", (String) loUser.getMaster("sUserIDxx"));
+        } else 
+            System.setProperty("sUserIDxx", (String) getUserInfo("sUserIDxx"));
+        
+        return true;
+    }
+    
+    @Override
     public String getMessage() {
         return psMessagex;
     }
@@ -402,6 +493,49 @@ public class Nautilus implements XNautilus{
     //added methods
     private void setMessage(String fsValue) {
         psMessagex = fsValue;
+    }
+    
+    private boolean loadProduct(String fsProdctID){
+        try {
+            RowSetFactory factory = RowSetProvider.newFactory();
+
+            String lsSQL = MiscUtil.addCondition(getSQ_Product(), 
+                                                    "sClientID = " + SQLUtil.toSQL(poClient.getString("sClientID")) +
+                                                        " AND sProdctID = " + SQLUtil.toSQL(fsProdctID));
+            
+            ResultSet loRS = poConn.executeQuery(lsSQL);
+
+            poProduct = factory.createCachedRowSet();
+            poProduct.populate(loRS);
+            MiscUtil.close(loRS);
+
+            if (!poProduct.next()){
+                setMessage("Unable to load product information.");
+                return false;
+            }
+            
+            switch (poProduct.getString("cLicTypex")){
+                case "1": //subscription
+                    if (CommonUtil.dateDiff(getServerDate(), poProduct.getDate("dExpiryDt")) > 0){
+                        setMessage("System subscription is over. Please ask your system administrator for assistance.");
+                        return false;
+                    }
+                    break;
+                case "2": //full license
+                    break;
+                default: //demo
+                    if (CommonUtil.dateDiff(getServerDate(), poProduct.getDate("dLicensex")) > 7){
+                        setMessage("System demo is over. Please ask your system administrator for assistance.");
+                        return false;
+                    }
+            }
+            
+            return true;
+        } catch (SQLException e) {
+            setMessage(e.getMessage());
+        }
+        
+        return false;
     }
     
     private boolean loadUser(String fsProdctID){
@@ -514,5 +648,17 @@ public class Nautilus implements XNautilus{
                     ", '' xManagerID" +
                 " FROM xxxSysClient a" +
                     " LEFT JOIN TownCity b ON a.sTownIDxx = b.sTownIDxx";
+    }
+    
+    private String getSQ_Product(){
+        return "SELECT" +
+                    "  sClientID"+
+                    ", sProdctID"+
+                    ", dSysDatex"+
+                    ", dLicensex"+
+                    ", dExpiryDt"+
+                    ", cLicTypex"+
+                    ", sApplPath"+
+                " FROM xxxSysApplication";
     }
 }
