@@ -12,6 +12,7 @@ public interface XPayments {
     
     void setSourceCd(String fsValue);
     void setSourceNo(String fsValue);
+    void setClientID(String fsValue);
 
     void setMaster(String fsFieldNm, Object foValue);
     Object getMaster(String fsFieldNm);

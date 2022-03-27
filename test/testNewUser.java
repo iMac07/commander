@@ -1,4 +1,6 @@
+import java.sql.SQLException;
 import org.junit.AfterClass;
+import static org.junit.Assert.fail;
 import org.junit.BeforeClass;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -27,37 +29,37 @@ public class testNewUser {
     
     @AfterClass
     public static void tearDownClass() {        
-        System.out.println(8 + 32 & 4);
-        System.out.println(8 + 32 & 2);
-        System.out.println(8 + 32 & 1);
+//        System.out.println(8 + 32 & 4);
+//        System.out.println(8 + 32 & 2);
+//        System.out.println(8 + 32 & 1);
     }
     
     @Test
     public void test01NewTransaction(){        
-//        System.out.println("----------------------------------------");
-//        System.out.println("test01NewTransaction() --> Start");
-//        System.out.println("----------------------------------------");
-//        try {
-//            if (_trans.NewRecord()){
-//                _trans.displayMasFields();
-//                
-//                _trans.setMaster("sProdctID", "icarus");
-//                _trans.setMaster("sUsername", "aly");
-//                _trans.setMaster("sPassword", "123456");
-//                _trans.setMaster("nUserLevl", 2);
-//                _trans.setMaster("nObjAcces", 1);
-//                _trans.setMaster("cGloblAct", "1");
-//                
-//                if (!_trans.SaveRecord()) fail(_trans.getMessage());
-//            } else {
-//                fail(_trans.getMessage());
-//            }
-//        } catch (SQLException e) {
-//            fail(e.getMessage());
-//        }
-//        System.out.println("----------------------------------------");
-//        System.out.println("test01NewTransaction() --> End");
-//        System.out.println("----------------------------------------");
+        System.out.println("----------------------------------------");
+        System.out.println("test01NewTransaction() --> Start");
+        System.out.println("----------------------------------------");
+        try {
+            if (_trans.NewRecord()){
+                _trans.displayMasFields();
+                
+                _trans.setMaster("sProdctID", "icarus");
+                _trans.setMaster("sUsername", "melvin");
+                _trans.setMaster("sPassword", "123456");
+                _trans.setMaster("nUserLevl", 8);
+                _trans.setMaster("nObjAcces", 31);
+                _trans.setMaster("cGloblAct", "1");
+                
+                if (!_trans.SaveRecord()) fail(_trans.getMessage());
+            } else {
+                fail(_trans.getMessage());
+            }
+        } catch (SQLException e) {
+            fail(e.getMessage());
+        }
+        System.out.println("----------------------------------------");
+        System.out.println("test01NewTransaction() --> End");
+        System.out.println("----------------------------------------");
     }
     
 //    @Test

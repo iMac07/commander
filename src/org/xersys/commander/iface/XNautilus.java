@@ -34,7 +34,7 @@ public interface XNautilus {
     public boolean load(String fsProdctID);
     
     public boolean lockUser();
-    public boolean loginUser(String fsProdctID, String fsUserIDxx);
+    public boolean loginUser(String fsProdctID);
     public boolean logoutUser();
     public boolean unlockUser();
     
@@ -44,6 +44,9 @@ public interface XNautilus {
     public ResultSet executeQuery(String fsValue);
     public long executeUpdate(String fsValue, String fsTableNme, String fsBranchCd, String fsDestinat);
     public long executeUpdate(String fsValue);
+    
+    public boolean isUserAuthorized(LApproval foListener, int fnUserLevl);   
+    public boolean isUserAuthorized(LApproval foListener, int fnUserLevl, int fnObjAcces);   
     
     public String getMessage();
 }

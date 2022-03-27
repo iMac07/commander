@@ -150,7 +150,7 @@ public class SysUser{
             //open master record
             lsSQL = MiscUtil.addCondition(getSQ_Master(), 
                         "a.sUsername = " + SQLUtil.toSQL(lsUserName) +
-                            " AND a.sPassword = " + SQLUtil.toSQL(lsPassword));
+                        " AND a.sPassword = " + SQLUtil.toSQL(lsPassword));
             
             loRS = p_oNautilus.executeQuery(lsSQL);
 
