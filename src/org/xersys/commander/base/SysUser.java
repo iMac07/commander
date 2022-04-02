@@ -347,10 +347,9 @@ public class SysUser{
                     break;
                 case 4: //sUsername
                 case 5: //sPassword
+                case 6: //sClientID
                     p_oMaster.updateObject(fnIndex, p_oNautilus.Encrypt((String) foValue));
                     p_oMaster.updateRow();
-                    break;
-                case 6: //sClientID
                     break;
                 case 7: //nUserLevl
                 case 12: //nObjAcces
