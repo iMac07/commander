@@ -420,7 +420,6 @@ public class MiscUtil {
                 loStmt = foCon.createStatement();
                 loRS = loStmt.executeQuery(lsSQL);
                 loRS.next();
-                System.out.println(loRS.getString(1));
                 lsPref = lsPref + loRS.getString(1).substring(2);
                 System.out.println(lsPref);
             } 
