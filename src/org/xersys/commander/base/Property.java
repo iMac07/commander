@@ -87,8 +87,10 @@ public class Property implements XProperty{
         
         try{                 
             psDBNameXX = aes.Decrypt(getConfig("Database"), SIGNATURE);
-            psDBSrvrNm = aes.Decrypt(getConfig("ServerName"), SIGNATURE);
-            psDBSrvrMn = aes.Decrypt(getConfig("MainServer"), SIGNATURE);         
+            psDBSrvrNm = getConfig("ServerName");
+            psDBSrvrMn = getConfig("MainServer");         
+//            psDBSrvrNm = aes.Decrypt(getConfig("ServerName"), SIGNATURE);
+//            psDBSrvrMn = aes.Decrypt(getConfig("MainServer"), SIGNATURE);         
             
             if(!getConfig("UserName").isEmpty()){
                 psDBUserNm = aes.Decrypt(getConfig("UserName"), SIGNATURE);
@@ -98,7 +100,9 @@ public class Property implements XProperty{
                 psDBPassWD = "";
             }
 
-            psDBPortNo = aes.Decrypt(getConfig("Port"), SIGNATURE);
+            psDBPortNo = getConfig("Port");
+//            psDBPortNo = aes.Decrypt(getConfig("Port"), SIGNATURE);
+            
             psDriverNm = getConfig("DBDriver");
             psClientID = getConfig("ClientID");         
         }catch(NumberFormatException ex){
