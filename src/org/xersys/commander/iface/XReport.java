@@ -9,6 +9,7 @@ public interface XReport {
     boolean getParam();
     JasperPrint processReport();
     String getFilterID();
+    String getMessage();
     
     //boolean processReport();
 }
