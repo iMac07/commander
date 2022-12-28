@@ -52,7 +52,7 @@ public class SQLUtil
     public static String FORMAT_TIMESTAMP  = "yyyy-MM-dd HH:mm:ss";
     public static String FORMAT_SHORT_DATEX = "yyyyMMdd";
     public static String FORMAT_SHORT_YEAR = "yy";
-    public static String FORMAT_TIME = "hh:mm:ss";
+    public static String FORMAT_TIME = "HH:mm:ss";
     
   /**
    * Escapes single quotes and backslashes in <code>string</code>. This is done by replacing
