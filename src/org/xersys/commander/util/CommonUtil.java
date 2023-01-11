@@ -19,6 +19,13 @@ import org.xersys.commander.contants.RecordStatus;
 import org.xersys.commander.iface.XNautilus;
 
 public class CommonUtil {
+    public static String getNextLetter(String fsValue){
+        char ch = fsValue.charAt(0);
+        int pos = ch - 'a' + 1;
+        
+        return String.valueOf((char) (97 + pos));
+    }
+    
     public static String getPCName(){
         try{
             return InetAddress.getLocalHost().getHostName();
