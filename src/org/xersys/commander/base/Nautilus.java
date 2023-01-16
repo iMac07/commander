@@ -338,6 +338,8 @@ public class Nautilus implements XNautilus{
         System.out.println(fsValue);
         lnRow = executeUpdate(fsValue);
         
+        if (lnRow <= 0) return lnRow;
+        
         //execute statement to replicaton
         if (!fsTableNme.isEmpty()){
             Timestamp tme = getServerDate();
