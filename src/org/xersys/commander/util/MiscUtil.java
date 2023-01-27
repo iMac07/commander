@@ -8,8 +8,10 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +22,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.xersys.commander.iface.XEntity;
+import java.time.ZoneId;
 
 public class MiscUtil {
     /**
@@ -1029,4 +1032,23 @@ public class MiscUtil {
         System.out.println("END: MAIN TABLE");
         System.out.println("----------------------------------------");
     }
+    
+    //mac
+    public static int getDateMonth(Date foValue){
+        LocalDate localDate = foValue.toInstant().atZone(ZoneId.systemDefault().systemDefault()).toLocalDate();
+        return localDate.getMonthValue();
+    }
+    
+    //mac
+    public static int getDateDay(Date foValue){
+        LocalDate localDate = foValue.toInstant().atZone(ZoneId.systemDefault().systemDefault()).toLocalDate();
+        return localDate.getDayOfMonth();
+    }
+    
+    //mac
+    public static int getDateYear(Date foValue){
+        LocalDate localDate = foValue.toInstant().atZone(ZoneId.systemDefault().systemDefault()).toLocalDate();
+        return localDate.getYear();
+    }
 }
+
